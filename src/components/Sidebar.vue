@@ -41,8 +41,9 @@
           type="button"
           class="btn btn-link text-light text-decoration-none d-flex align-items-center p-0"
         >
-          <i class="bi bi-box-arrow-right me-2"></i>
-          <span v-if="!isMinimized">Logout</span>
+         
+          <span class="me-2" v-if="!isMinimized">Logout</span>
+           <i class="bi bi-box-arrow-right "></i>
         </button>
 
         <button class="btn btn-sm btn-outline-light" @click="toggleSidebar">
@@ -56,7 +57,7 @@
 <script>
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
-
+import { computed} from "vue";
 export default {
   name: "AppSidebar",
   setup() {
@@ -64,11 +65,13 @@ export default {
     const router = useRouter();
     const auth = useAuthStore();
 
-    const role = route.path.startsWith("/ppic")
-      ? "ppic"
-      : route.path.startsWith("/production")
-      ? "production"
-      : "unknown";
+    const user = computed(() => auth.user);
+
+    const role = computed(() => {
+      if (route.path.startsWith("/ppic")) return "ppic";
+      if (route.path.startsWith("/production")) return "production";
+      return "unknown";
+    });
 
     const menu = [
       {
@@ -91,17 +94,21 @@ export default {
       },
     ];
 
+
+    const filteredMenu = computed(() => menu.find((m) => m.role === role.value)?.items || []);
+
+
     const handleLogout = () => {
       auth.$reset();
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      router.push("/");
+      router.replace({ path: '/' });
     };
 
-    const filteredMenu = menu.find((m) => m.role === role)?.items || [];
+    // const filteredMenu = menu.find((m) => m.role === role)?.items || [];
     const isActive = (path) => route.path === path;
 
-    return { filteredMenu, isActive, handleLogout, user: auth.user };
+    return { filteredMenu, isActive, handleLogout, user};
   },
   data() {
     return { isMinimized: false };

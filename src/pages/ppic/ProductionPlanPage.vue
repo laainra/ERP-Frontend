@@ -1,6 +1,7 @@
 <template>
   <MainLayout>
     <div class="production-page p-4">
+
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -50,6 +51,7 @@
 
       <!-- Table -->
       <div class="table-responsive shadow-sm rounded">
+        
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
@@ -105,7 +107,7 @@
       <div class="d-flex justify-content-end mt-3">
         <ul class="pagination mb-0">
           <li class="page-item" :class="{ disabled: page === 1 }">
-            <button class="page-link" @click="page-- && fetchPlans()">
+            <button class="page-link" @click="goToPrevious()">
               Previous
             </button>
           </li>
@@ -126,12 +128,14 @@
             </button>
           </li>
           <li class="page-item" :class="{ disabled: page === lastPage }">
-            <button class="page-link" @click="page++ && fetchPlans()">
+            <button class="page-link" @click="goToNext()">
               Next
             </button>
           </li>
         </ul>
       </div>
+
+
 
       <!-- Report Modal -->
       <div
@@ -304,10 +308,7 @@
                   <th>Target Finish</th>
                   <td>{{ detailPlan.target_finish_date }}</td>
                 </tr>
-                <tr>
-                  <th>Due Days</th>
-                  <td>{{ detailPlan.due_days }}</td>
-                </tr>
+
                 <tr>
                   <th>Notes</th>
                   <td>{{ detailPlan.notes }}</td>
@@ -678,7 +679,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useProductionPlanStore } from "@/stores/productionPlanStore";
 import { useOrderStore } from "@/stores/productionOrderStore";
 import { useProductStore } from "@/stores/productStore";
@@ -704,6 +705,7 @@ export default {
     const plans = ref([]);
     const reports = ref([]);
     const products = ref([]);
+    const totalItems = ref(0);
 
     const showModal = ref(false);
     const isEditMode = ref(false);
@@ -715,6 +717,7 @@ export default {
       notes: "",
     });
     const loading = ref(false);
+    const loadingPage = ref(true);
     const deletingId = ref(null);
     const approvingId = ref(null);
     const rejectingId = ref(null);
@@ -754,90 +757,6 @@ export default {
     const closeReportModal = () => {
       showReportModal.value = false;
     };
-
-    // jsPDF.API.autoTable = autoTable;
-
-    // const generateReport = async () => {
-    //   loading.value = true;
-    //   const params = {};
-    //   switch (reportForm.value.periodType) {
-    //     case "range":
-    //       params.type = "custom";
-    //       params.from = reportForm.value.startDate;
-    //       params.to = reportForm.value.endDate;
-    //       break;
-    //     case "weekly":
-    //       params.type = "weekly";
-    //       params.week = reportForm.value.weekNumber;
-    //       params.year = reportForm.value.year;
-    //       break;
-    //     case "monthly":
-    //       params.type = "monthly";
-    //       params.month = reportForm.value.month;
-    //       params.year = reportForm.value.year;
-    //       break;
-    //   }
-
-    //   await store.fetchPlanReports(params);
-    //   reports.value = store.reports || [];
-
-    //   try {
-    //     await store.fetchPlanReports();
-    //     reports.value = store.reports || [];
-
-    //     const doc = new jsPDF("l", "mm", "a4");
-    //     doc.setFontSize(16);
-    //     doc.text("Laporan Produksi", 105, 15, { align: "center" });
-
-    //     const headers = [
-    //       [
-    //         "No",
-    //         "Plan Code",
-    //         "Product",
-    //         "Qty Target",
-    //         "Status",
-    //         "Progress (%)",
-    //         "Approved/Rejected By",
-    //         "Approved/Rejected At",
-    //         "Additional Info",
-    //       ],
-    //     ];
-
-    //     const data = reports.value.map((p, idx) => [
-    //       idx + 1,
-    //       p.plan_code,
-    //       p.product_name || p.product?.name || "-",
-    //       p.quantity_target || p.quantity,
-    //       p.status,
-    //       p.progress_percent ?? "-",
-    //       p.approved_by ?? "-",
-    //       p.approved_at ?? "-",
-    //       p.notes ?? "-",
-    //     ]);
-
-    //     autoTable(doc, {
-    //       head: headers,
-    //       body: data,
-    //       startY: 25,
-    //       theme: "grid",
-    //       headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-    //     });
-
-    //     if (reportForm.value.additionalInfo) {
-    //       const finalY = doc.lastAutoTable.finalY || 25;
-    //       doc.setFontSize(12);
-    //       doc.text("Info Tambahan:", 10, finalY + 10);
-    //       doc.text(reportForm.value.additionalInfo, 10, finalY + 15);
-    //     }
-
-    //     doc.save(`Laporan_Produksi_${Date.now()}.pdf`);
-    //   } catch (error) {
-    //     console.error("Failed to generate report:", error);
-    //   } finally {
-    //     loading.value = false;
-    //   }
-    // };
-
 
     const exportPlanReport = async () => {
       try {
@@ -893,33 +812,35 @@ export default {
       await userStore.fetchUsers();
       users.value = userStore.users || [];
     };
-const fetchPlans = debounce(async () => {
-  try {
-    const params = {
-      page: page.value,
-      per_page: perPage.value,
-      search: search.value || null,
-      sort_field: "id",
-      sort_order: "desc",
-    };
 
-    const response = await store.fetchPlans(params);
+    const fetchPlans = debounce(async () => {
+      loadingPage.value = true;
+      try {
+        const response = await store.fetchPlans({
+          page: page.value,
+          perPage: perPage.value,
+          search: search.value || "",
+          sortField: store.sortField,
+          sortOrder: store.sortOrder,
+        });
 
-    // Pastikan ambil data yang benar
-    if (response?.data) {
-      plans.value = response.data;
-      lastPage.value = response.last_page || 1;
-    } else if (store.plans?.data) {
-      plans.value = store.plans.data;
-      lastPage.value = store.plans.last_page || 1;
-    } else {
-      plans.value = [];
-    }
-  } catch (error) {
-    console.error("Error fetching plans:", error);
-    plans.value = [];
-  }
-}, 400);
+        if (response) {
+          plans.value = response.data;
+          page.value = response.current_page;
+          lastPage.value = response.last_page;
+          totalItems.value = response.total;
+        } else {
+          plans.value = [];
+          totalItems.value = 0;
+        }
+      } catch (error) {
+        console.error("Error fetching plans:", error);
+        plans.value = [];
+        totalItems.value = 0;
+      } finally {
+        loadingPage.value = false;
+      }
+    }, 300);
 
     const handleSearch = debounce(() => {
       page.value = 1; 
@@ -941,6 +862,20 @@ const fetchPlans = debounce(async () => {
       page.value = 1;
       fetchPlans();
     };
+
+
+      const goToNext = () => {
+        if (page.value < lastPage.value) {
+          page.value++;
+          fetchPlans();
+        }
+      };
+      const goToPrevious = () => {
+        if (page.value > 1) {
+          page.value--;
+          fetchPlans();
+        }
+      };
 
     const sort = (field) => {
       if (store.sortField === field) {
@@ -1031,8 +966,8 @@ const fetchPlans = debounce(async () => {
         } else {
           await store.createPlan(form.value);
         }
-        closeModal();
         await fetchPlans();
+        closeModal();
       } finally {
         loading.value = false;
       }
@@ -1055,24 +990,20 @@ const fetchPlans = debounce(async () => {
       await fetchPlans();
     };
 
-    const approvePlan = async (planOrId) => {
+   const approvePlan = async (planOrId) => {
       const id = typeof planOrId === "object" ? planOrId.id : planOrId;
       approvingId.value = id;
       try {
         await store.approvePlan(id);
-        Swal.fire("Approved!", "", "success");
         await fetchPlans();
+        Swal.fire("Approved!", "", "success");
       } catch (err) {
-        console.error("Approve failed:", err);
-        Swal.fire(
-          "Error",
-          err?.response?.data?.message || "Failed to approve plan",
-          "error"
-        );
+        Swal.fire("Error", err.message, "error");
       } finally {
         approvingId.value = null;
       }
     };
+
 
     const rejectPlan = async (planOrId) => {
       const id = typeof planOrId === "object" ? planOrId.id : planOrId;
@@ -1243,9 +1174,26 @@ const fetchPlans = debounce(async () => {
     // -----------------------------------------------------------------
 
     const paginationPages = computed(() => {
-      let pages = [];
-      for (let i = 1; i <= lastPage.value; i++) pages.push(i);
+      const pages = [];
+      const total = lastPage.value;
+      const current = page.value;
+
+      // Menampilkan maksimal 5 halaman di pagination
+      let start = Math.max(current - 2, 1);
+      let end = Math.min(start + 4, total);
+
+      // pastikan start menyesuaikan jika end terlalu kecil
+      start = Math.max(end - 4, 1);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
       return pages;
+    });
+
+    watch([perPage, search], () => {
+      page.value = 1;
+      fetchPlans();
     });
 
     onMounted(async () => {
@@ -1314,7 +1262,9 @@ const fetchPlans = debounce(async () => {
       confirmDelete,
       fetchUsers,
       handleSearch,
-      // alias for template close/submit of order modal
+      loadingPage,
+      goToNext,
+      goToPrevious,
       close: () => {
         showCreateOrderModal.value = false;
         showOrderDetailModal.value = false;
@@ -1405,6 +1355,7 @@ const fetchPlans = debounce(async () => {
           return "";
       }
     },
+
   },
 };
 </script>

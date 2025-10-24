@@ -50,8 +50,8 @@
               <td>{{ log.log_type }}</td>
               <td>{{ log.plan?.plan_code || '-' }}</td>
               <td>{{ log.order?.order_code || '-' }}</td>
-              <td>{{ log.old_status }}</td>
-              <td>{{ log.new_status }}</td>
+              <td>{{ log.old_status || '-' }}</td>
+              <td>{{ log.new_status || '-'}}</td>
               <td>{{ log.changedBy?.name || '-' }}</td>
               <td>{{ formatDate(log.changed_at) }}</td>
               <td>

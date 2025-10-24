@@ -44,12 +44,13 @@
             <tr>
               <th>Order Code</th>
               <th @click="sort('product_name')" class="sortable">
-                Produk <span class="sort-icon">{{ getSortIcon('product_name') }}</span>
+                Jumlah Produk 
               </th>
+              <th>Jumlah Target</th>
               <th @click="sort('quantity_actual')" class="sortable">
-                Produksi <span class="sort-icon">{{ getSortIcon('quantity_actual') }}</span>
+                Jumlah Aktual Produksi 
               </th>
-              <th>Reject</th>
+              <th>Jumlah Reject</th>
               <th>Status Akhir</th>
               <th>Lokasi</th>
               <th>Tanggal</th>
@@ -60,6 +61,7 @@
             <tr v-for="report in reports" :key="report.id">
               <td>{{ report.order_code }}</td>
               <td>{{ report.product_name }}</td>
+              <td>{{ report.quantity_target }}</td>
               <td>{{ report.quantity_actual }}</td>
               <td>{{ report.quantity_reject }}</td>
               <td>
@@ -130,7 +132,7 @@
                         :key="order.id"
                         :value="order.id"
                       >
-                        {{ order.order_code }} - {{ order.product?.name || 'Tanpa Produk' }}
+                        {{ order.order_code }} - {{ order.status }} - {{ order.product?.name || 'Tanpa Produk' }}
                       </option>
                     </select>
                   </div>
@@ -175,6 +177,7 @@
               <div class="modal-body">
                 <p><strong>Order Code:</strong> {{ selectedReport.order_code || '-' }}</p>
                 <p><strong>Produk:</strong> {{ selectedReport.product_name || '-' }}</p>
+                <p><strong>Qty Target:</strong> {{ selectedReport.quantity_target }}</p>
                 <p><strong>Qty Aktual:</strong> {{ selectedReport.quantity_actual }}</p>
                 <p><strong>Qty Reject:</strong> {{ selectedReport.quantity_reject }}</p>
                 <p><strong>Status Akhir:</strong> {{ selectedReport.status_final }}</p>
@@ -332,10 +335,10 @@ const sort = (field) => {
   fetchReports();
 };
 
-const getSortIcon = (field) => {
-  if (store.sortField !== field) return "▲▼";
-  return store.sortOrder === "asc" ? "▲" : "▼";
-};
+// const getSortIcon = (field) => {
+//   if (store.sortField !== field) return "▲▼";
+//   return store.sortOrder === "asc" ? "▲" : "▼";
+// };
 
 const openCreateModal = () => {
   isEditMode.value = false;

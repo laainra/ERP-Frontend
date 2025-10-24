@@ -248,8 +248,8 @@ export default {
         } else {
           await store.createProduct(form.value);
         }
-        closeModal();
         await fetchProducts();
+        closeModal();
       } catch (error) {
         alert(error.response?.data?.message || "Error");
       } finally {
@@ -257,34 +257,43 @@ export default {
       }
     };
 
-      const deleteProduct = async (id) => {
-        const result = await Swal.fire({
-          title: 'Are you sure?',
-          text: "You won't be able to revert this!",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes, delete it!',
-          cancelButtonText: 'Cancel',
-          reverseButtons: true,
-          showLoaderOnConfirm: true, 
-          preConfirm: async () => {
-            try {
-              await store.deleteProduct(id); 
-              await fetchProducts();        
-              return true;
-            } catch (error) {
+    const deleteProduct = async (id) => {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        preConfirm: async () => {
+          try {
+            await store.deleteProduct(id);
+            await fetchProducts();
+            return true;
+          } catch (error) {
+    
+            if (error.response?.data?.message?.includes('1451') ||
+                error.response?.data?.message?.toLowerCase().includes('foreign key')) {
               Swal.showValidationMessage(
-                `Request failed: ${error.response?.data?.message || 'Error'}`
+                `Cannot delete this product! It is still used in production plans.`
+              );
+            } else {
+              Swal.showValidationMessage(
+                `Request failed: ${error.response?.data?.message || error.message || 'Unknown error'}`
               );
             }
-          },
-          allowOutsideClick: () => !Swal.isLoading(),
-        });
+          }
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      });
 
-        if (result.isConfirmed) {
-          Swal.fire('Deleted!', 'Product has been deleted.', 'success');
-        }
-      };
+      if (result.isConfirmed) {
+        Swal.fire('Deleted!', 'Product has been deleted.', 'success');
+      }
+    };
+
 
 
 

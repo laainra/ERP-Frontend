@@ -5,7 +5,7 @@ import { useAuthStore } from '../stores/authStore'
 import LoginPage from '../pages/auth/LoginPage.vue'
 
 // ===== MISC =====
-import LandingPage from '../pages/misc/LandingPage.vue'
+import LandingPage from '../pages/LandingPage.vue'
 import Forbidden from '../pages/misc/Forbidden.vue'
 import NotFound from '../pages/misc/NotFound.vue'
 

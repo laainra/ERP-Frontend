@@ -40,6 +40,7 @@
                 Order Code <span class="sort-icon">{{ getSortIcon('order_code') }}</span>
               </th>
               <th>Product</th>
+              <th>Quantity Target</th>
               <th>Status</th>
               <th>Updated By</th>
               <th>Updated At</th>
@@ -51,10 +52,11 @@
             <tr v-for="order in orders" :key="order.id">
               <td>{{ order.order_code }}</td>
               <td>{{ order.product?.name || '-' }}</td>
+              <td>{{ order.quantity_target || '-' }}</td>
               <td>
                 <span :class="['badge', getStatusBadge(order.status)]">{{ order.status }}</span>
               </td>
-              <td>{{ order.assigned_to?.name || '-' }}</td>
+             <td>{{ order.logs[order.logs.length - 1]?.changed_by?.name || '-' }}</td>
               <td>{{ formatDate(order.updated_at) }}</td>
               <td class="d-flex gap-1">
                 <button class="btn btn-sm btn-info" @click="openDetail(order)">Detail</button>

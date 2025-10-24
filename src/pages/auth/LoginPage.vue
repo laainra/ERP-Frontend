@@ -69,7 +69,6 @@ export default {
 
         Swal.fire("Success", "Login berhasil", "success");
 
-        // Redirect sesuai tipe halaman
         if (pageType.value === "production") {
           router.push("/production");
         } else {

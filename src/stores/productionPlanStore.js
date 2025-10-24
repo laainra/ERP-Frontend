@@ -18,33 +18,49 @@ export const useProductionPlanStore = defineStore("productionPlan", {
     role: localStorage.getItem("role") || "user",
   }),
   actions: {
-    async fetchPlans() {
+    async fetchPlans(params = {}) {
       this.loading = true;
       try {
         const res = await axios.get(API_ENDPOINTS.PRODUCTION_PLANS, {
           params: {
-            page: this.pagination.page,
-            per_page: this.pagination.perPage,
-            search: this.search,
-            sort_field: this.sortField,
-            sort_order: this.sortOrder,
+            page: params.page || this.pagination.page,
+            per_page: params.perPage || this.pagination.perPage,
+            search: params.search || this.search,
+            sort_field: params.sortField || this.sortField,
+            sort_order: params.sortOrder || this.sortOrder,
           },
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
+
+        // simpan data ke state
         this.plans = res.data.data;
+        this.pagination.page = res.data.current_page;
+        this.pagination.perPage = res.data.per_page;
         this.pagination.total = res.data.total;
         this.pagination.lastPage = res.data.last_page;
-        return res.data; 
+
+        return res.data; // kembalikan semua info pagination + data
       } finally {
         this.loading = false;
       }
     },
+
     async createPlan(plan) {
       const token = localStorage.getItem("token");
-      await axios.post(API_ENDPOINTS.PRODUCTION_PLANS, plan, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      try {
+        const res = await axios.post(API_ENDPOINTS.PRODUCTION_PLANS, plan, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("Plan created:", res.data);
+      } catch (err) {
+        if (err.response) {
+          console.error("Validation errors:", err.response.data);
+        } else {
+          console.error(err);
+        }
+      }
     },
+
     async getPlan(id) {
       try {
         const token = localStorage.getItem("token");
@@ -71,9 +87,34 @@ export const useProductionPlanStore = defineStore("productionPlan", {
     },
     async approvePlan(id) {
       const token = localStorage.getItem("token");
-      await axios.put(`${API_ENDPOINTS.PRODUCTION_PLANS}/${id}/approve`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      try {
+        const response = await axios.put(
+          `${API_ENDPOINTS.PRODUCTION_PLANS}/${id}/approve`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        // bisa return response.data supaya caller bisa pakai
+        return response.data;
+      } catch (err) {
+        console.error("Approve failed in store:", err);
+
+        // Ambil pesan error dari response Laravel
+        let message = "Failed to approve plan";
+        if (err?.response?.data) {
+          if (typeof err.response.data.message === "string") {
+            message = err.response.data.message;
+          } else if (Array.isArray(err.response.data.message)) {
+            message = err.response.data.message.join(", ");
+          } else if (typeof err.response.data.message === "object") {
+            message = JSON.stringify(err.response.data.message);
+          }
+        }
+
+        // lempar lagi supaya caller bisa handle Swal
+        throw new Error(message);
+      }
     },
     async rejectPlan(id, reason = "") {
       const token = localStorage.getItem("token");

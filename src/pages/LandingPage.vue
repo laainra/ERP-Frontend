@@ -21,7 +21,7 @@
         <img src="@/assets/ppic-card.jpg" class="card-img-top" alt="PPIC" />
         <div class="card-body text-center">
           <h5 class="card-title fw-semibold text-dark">Login PPIC</h5>
-          <p class="card-text text-secondary">Buat & kelola Rencana Produksi perusahaan</p>
+          <p class="card-text text-secondary">Buat & Kelola Rencana Produksi Perusahaan</p>
           <button class="btn btn-sm btn-outline-primary rounded-pill px-3 mt-2">
             <i class="bi bi-box-arrow-in-right me-1"></i> Masuk PPIC
             </button>
@@ -33,7 +33,7 @@
         <img src="@/assets/production-card.jpg" class="card-img-top" alt="Produksi" />
         <div class="card-body text-center">
           <h5 class="card-title fw-semibold text-dark">Login Produksi</h5>
-          <p class="card-text text-secondary">Pantau & catat hasil produksi harian</p>
+          <p class="card-text text-secondary">Pantau & Catat Laporan Hasil Produksi</p>
          <button class="btn btn-sm btn-outline-success rounded-pill px-3 mt-2">
             <i class="bi bi-box-arrow-in-right me-1"></i> Masuk Produksi
          </button>
