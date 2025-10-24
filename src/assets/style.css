@@ -1,0 +1,113 @@
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.sortable {
+  cursor: pointer;
+}
+
+.table-responsive {
+  background: #fff;
+  border-radius: 0.5rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.btn-sm {
+  min-width: 70px;
+}
+
+/* Modal Styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+/* Modal Dialog */
+.modal-dialog {
+  max-width: 500px;
+  width: 100%;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #ffffff; /* Putih */
+  border-radius: 0.6rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  border: none;
+  overflow: hidden;
+}
+
+/* Header */
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+}
+
+/* Body */
+.modal-body {
+  padding: 1rem 1.5rem;
+}
+
+/* Form inside modal */
+.modal-form .form-label {
+  font-weight: 500;
+}
+
+/* Buttons */
+.modal-form .btn {
+  min-width: 100px;
+}
+
+.table-responsive {
+  overflow-x: auto; 
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255,255,255,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.th-content {
+  display: inline-flex;
+  align-items: center; /* sejajar vertikal */
+  gap: 0.25rem;        /* jarak antara teks dan ikon */
+}
+
+.sort-icon {
+  font-size: 0.7rem;
+  color: #555;
+}
+
+
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
