@@ -33,14 +33,14 @@
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th @click="sort('id')" class="sortable">ID </th>
-              <th @click="sort('log_type')" class="sortable">Log Type </th>
-              <th>Plan</th>
-              <th>Order</th>
-              <th @click="sort('old_status')" class="sortable">Old Status </th>
-              <th @click="sort('new_status')" class="sortable">New Status </th>
-              <th>Changed By</th>
-              <th @click="sort('changed_at')" class="sortable">Changed At </th>
+              <th @click="sort('id')" class="sortable">ID <span class="sort-icon">{{ getSortIcon('id') }}</span> </th>
+              <th @click="sort('log_type')" class="sortable">Tipe Log </th>
+              <th>Kode Rencana</th>
+              <th>Kode Order</th>
+              <th @click="sort('old_status')" class="sortable">Status Lama </th>
+              <th @click="sort('new_status')" class="sortable">Status Baru</th>
+              <th>Diperbarui oleh</th>
+              <th @click="sort('changed_at')" class="sortable">Diperbarui pada </th>
               <th>Action</th>
             </tr>
           </thead>
@@ -120,7 +120,6 @@ import { generatePDFReport } from "@/utils/generatePdfReport";
 const store = useLogStore();
 const selectedLog = ref(null);
 
-// Computed
 const logs = computed(() => store.logs);
 const _page = computed({ get: () => store.pagination.page, set: (val) => store.setPage(val) });
 const _perPage = computed({ get: () => store.pagination.perPage, set: (val) => store.setPerPage(val) });
@@ -128,12 +127,27 @@ const lastPage = computed(() => store.pagination.lastPage);
 const _search = computed({ get: () => store.search, set: (val) => store.setSearch(val) });
 const _paginationPages = computed(() => Array.from({ length: lastPage.value }, (_, i) => i + 1));
 
-// Functions
+
+
 const fetchLogs = async () => await store.fetchLogs();
-const sort = (field) => store.setSort(field);
-// const getSortIcon = (field) => (store.sortField !== field ? "▲▼" : store.sortOrder === "asc" ? "▲" : "▼");
+
+const sort = (field) => {
+  if (store.sortField === field) {
+    store.sortOrder = store.sortOrder === "asc" ? "desc" : "asc";
+  } else {
+    store.sortField = field;
+    store.sortOrder = "asc";
+  }
+  fetchLogs();
+};
+
+const getSortIcon = (field) => {
+  if (store.sortField !== field) return "▲▼";
+  return store.sortOrder === "asc" ? "▲" : "▼";
+};
+
 const formatDate = (date) => new Date(date).toLocaleString();
-const showDetail = (log) => selectedLog.value = log;
+const showDetail = (log) => (selectedLog.value = log);
 
 const _printLogs = () => {
   if (!logs.value.data.length) return;
@@ -155,6 +169,7 @@ const _printLogs = () => {
 
 onMounted(fetchLogs);
 </script>
+
 
 <style scoped>
 .sortable { cursor: pointer; }

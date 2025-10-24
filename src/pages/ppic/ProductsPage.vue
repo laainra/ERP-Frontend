@@ -48,9 +48,9 @@
                 SKU <span class="sort-icon">{{ getSortIcon('sku') }}</span>
               </th>
               <th @click="sort('name')" class="sortable">
-                Name <span class="sort-icon">{{ getSortIcon('name') }}</span>
+                Nama Produk <span class="sort-icon">{{ getSortIcon('name') }}</span>
               </th>
-              <th>Description</th>
+              <th>Deskripsi</th>
               <th>Unit</th>
               <th>Actions</th>
             </tr>

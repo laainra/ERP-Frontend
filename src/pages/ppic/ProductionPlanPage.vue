@@ -56,14 +56,14 @@
           <thead class="table-light">
             <tr>
               <th @click="sort('plan_code')" class="sortable">
-                Plan Code <span>{{ getSortIcon("plan_code") }}</span>
+                Code Rencana <span>{{ getSortIcon("plan_code") }}</span>
               </th>
-              <th>Product</th>
+              <th>Produk</th>
               <th @click="sort('quantity')" class="sortable">
-                Quantity <span>{{ getSortIcon("quantity") }}</span>
+                Jumlah Target 
               </th>
               <th>Status</th>
-              <th>Target Finish</th>
+              <th>Target Penyelesaian</th>
               <th>Actions</th>
             </tr>
           </thead>

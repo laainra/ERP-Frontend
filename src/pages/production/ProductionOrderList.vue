@@ -37,13 +37,14 @@
           <thead class="table-light">
             <tr>
               <th @click="sort('order_code')" class="sortable">
-                Order Code <span class="sort-icon">{{ getSortIcon('order_code') }}</span>
+                Kode Order <span class="sort-icon">{{ getSortIcon('order_code') }}</span>
               </th>
-              <th>Product</th>
-              <th>Quantity Target</th>
+              <th>Produk</th>
+              <th>Jumlah Target</th>
+              <th>Target Tanggal Penyelesaian</th>
               <th>Status</th>
-              <th>Updated By</th>
-              <th>Updated At</th>
+              <th>Diperbarui oleh</th>
+              <th>Diperbarui pada</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -53,6 +54,7 @@
               <td>{{ order.order_code }}</td>
               <td>{{ order.product?.name || '-' }}</td>
               <td>{{ order.quantity_target || '-' }}</td>
+              <td>{{ order.plan.target_finish_date || '-' }}</td>
               <td>
                 <span :class="['badge', getStatusBadge(order.status)]">{{ order.status }}</span>
               </td>
