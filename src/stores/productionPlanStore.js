@@ -12,28 +12,32 @@ export const useProductionPlanStore = defineStore("productionPlan", {
     pagination: {
       page: 1,
       perPage: 10,
+      total: 0,
       lastPage: 1,
     },
     role: localStorage.getItem("role") || "user",
   }),
   actions: {
     async fetchPlans() {
-      const { page, perPage } = this.pagination;
-      const params = {
-        search: this.search,
-        sortField: this.sortField,
-        sortOrder: this.sortOrder,
-        page,
-        perPage,
-      };
-      const token = localStorage.getItem("token");
-      const { data } = await axios.get(API_ENDPOINTS.PRODUCTION_PLANS, {
-        params,
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      this.plans = data.data;
-      this.pagination.lastPage = data.last_page || 1;
+      this.loading = true;
+      try {
+        const res = await axios.get(API_ENDPOINTS.PRODUCTION_PLANS, {
+          params: {
+            page: this.pagination.page,
+            per_page: this.pagination.perPage,
+            search: this.search,
+            sort_field: this.sortField,
+            sort_order: this.sortOrder,
+          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        this.plans = res.data.data;
+        this.pagination.total = res.data.total;
+        this.pagination.lastPage = res.data.last_page;
+        return res.data; 
+      } finally {
+        this.loading = false;
+      }
     },
     async createPlan(plan) {
       const token = localStorage.getItem("token");

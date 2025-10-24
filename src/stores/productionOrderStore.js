@@ -7,6 +7,12 @@ export const useOrderStore = defineStore("order", {
   state: () => ({
     orders: [],
     orderLogs: {}, 
+    pagination: {
+      perPage: 10,
+      currentPage: 1,
+      lastPage: 1,
+      total: 0,
+    },
   }),
 
   actions: {
@@ -14,19 +20,19 @@ export const useOrderStore = defineStore("order", {
       return { Authorization: `Bearer ${localStorage.getItem("token")}` };
     },
 
-    // fetch all orders
-    async fetchOrders(params = {}) {
-      try {
-        const res = await axios.get(API_ENDPOINTS.PRODUCTION_ORDERS, {
-          params,
-          headers: this.getAuthHeaders(),
-        });
-        this.orders = res.data.data || [];
-      } catch (err) {
-        console.error("Failed to fetch orders:", err.response?.data || err);
-      }
-    },
-
+  async fetchOrders(params) {
+    const { data } = await axios.get(API_ENDPOINTS.PRODUCTION_ORDERS, {
+      params,
+      headers: this.getAuthHeaders(),
+    });
+    this.orders = data.data;
+    this.pagination = {
+      page: data.current_page,
+      lastPage: data.last_page,
+      perPage: data.per_page,
+      total: data.total,
+    };
+  },
     // fetch single order
     async fetchOrder(id) {
       try {

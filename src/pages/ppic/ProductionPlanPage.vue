@@ -150,7 +150,7 @@
               ></button>
             </div>
             <div class="modal-body">
-              <form @submit.prevent="generateReport">
+              <form @submit.prevent="exportPlanReport">
                 <div class="mb-3">
                   <label class="form-label">Periode</label>
                   <select
@@ -607,11 +607,13 @@
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Product</label>
+                  
                   <select
                     v-model="form.product_id"
                     class="form-select"
                     required
                   >
+                  <option value="" disabled>Pilih Produk</option>
                     <option
                       v-for="product in products"
                       :key="product.id"
@@ -683,9 +685,9 @@ import { useProductStore } from "@/stores/productStore";
 import { useAuthStore } from "@/stores/authStore";
 import MainLayout from "@/layouts/MainLayout.vue";
 import Swal from "sweetalert2";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import generateCode from "@/utils/generateCode";
+import { debounce } from 'lodash';
+import { generatePDFReport } from "@/utils/generatePdfReport";
 
 export default {
   name: "ProductionPlanPage",
@@ -753,39 +755,97 @@ export default {
       showReportModal.value = false;
     };
 
-    jsPDF.API.autoTable = autoTable;
+    // jsPDF.API.autoTable = autoTable;
 
-    const generateReport = async () => {
-      loading.value = true;
-      const params = {};
-      switch (reportForm.value.periodType) {
-        case "range":
-          params.type = "custom";
-          params.from = reportForm.value.startDate;
-          params.to = reportForm.value.endDate;
-          break;
-        case "weekly":
-          params.type = "weekly";
-          params.week = reportForm.value.weekNumber;
-          params.year = reportForm.value.year;
-          break;
-        case "monthly":
-          params.type = "monthly";
-          params.month = reportForm.value.month;
-          params.year = reportForm.value.year;
-          break;
-      }
+    // const generateReport = async () => {
+    //   loading.value = true;
+    //   const params = {};
+    //   switch (reportForm.value.periodType) {
+    //     case "range":
+    //       params.type = "custom";
+    //       params.from = reportForm.value.startDate;
+    //       params.to = reportForm.value.endDate;
+    //       break;
+    //     case "weekly":
+    //       params.type = "weekly";
+    //       params.week = reportForm.value.weekNumber;
+    //       params.year = reportForm.value.year;
+    //       break;
+    //     case "monthly":
+    //       params.type = "monthly";
+    //       params.month = reportForm.value.month;
+    //       params.year = reportForm.value.year;
+    //       break;
+    //   }
 
-      await store.fetchPlanReports(params);
-      reports.value = store.reports || [];
+    //   await store.fetchPlanReports(params);
+    //   reports.value = store.reports || [];
 
+    //   try {
+    //     await store.fetchPlanReports();
+    //     reports.value = store.reports || [];
+
+    //     const doc = new jsPDF("l", "mm", "a4");
+    //     doc.setFontSize(16);
+    //     doc.text("Laporan Produksi", 105, 15, { align: "center" });
+
+    //     const headers = [
+    //       [
+    //         "No",
+    //         "Plan Code",
+    //         "Product",
+    //         "Qty Target",
+    //         "Status",
+    //         "Progress (%)",
+    //         "Approved/Rejected By",
+    //         "Approved/Rejected At",
+    //         "Additional Info",
+    //       ],
+    //     ];
+
+    //     const data = reports.value.map((p, idx) => [
+    //       idx + 1,
+    //       p.plan_code,
+    //       p.product_name || p.product?.name || "-",
+    //       p.quantity_target || p.quantity,
+    //       p.status,
+    //       p.progress_percent ?? "-",
+    //       p.approved_by ?? "-",
+    //       p.approved_at ?? "-",
+    //       p.notes ?? "-",
+    //     ]);
+
+    //     autoTable(doc, {
+    //       head: headers,
+    //       body: data,
+    //       startY: 25,
+    //       theme: "grid",
+    //       headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+    //     });
+
+    //     if (reportForm.value.additionalInfo) {
+    //       const finalY = doc.lastAutoTable.finalY || 25;
+    //       doc.setFontSize(12);
+    //       doc.text("Info Tambahan:", 10, finalY + 10);
+    //       doc.text(reportForm.value.additionalInfo, 10, finalY + 15);
+    //     }
+
+    //     doc.save(`Laporan_Produksi_${Date.now()}.pdf`);
+    //   } catch (error) {
+    //     console.error("Failed to generate report:", error);
+    //   } finally {
+    //     loading.value = false;
+    //   }
+    // };
+
+
+    const exportPlanReport = async () => {
       try {
+        loading.value = true;
+
+        // Panggil fetchPlanReports dengan await
         await store.fetchPlanReports();
         reports.value = store.reports || [];
-
-        const doc = new jsPDF("l", "mm", "a4");
-        doc.setFontSize(16);
-        doc.text("Laporan Produksi", 105, 15, { align: "center" });
 
         const headers = [
           [
@@ -801,7 +861,7 @@ export default {
           ],
         ];
 
-        const data = reports.value.map((p, idx) => [
+        const rows = reports.value.map((p, idx) => [
           idx + 1,
           p.plan_code,
           p.product_name || p.product?.name || "-",
@@ -813,24 +873,17 @@ export default {
           p.notes ?? "-",
         ]);
 
-        autoTable(doc, {
-          head: headers,
-          body: data,
-          startY: 25,
-          theme: "grid",
-          headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        generatePDFReport({
+          title: "Laporan Produksi",
+          columns: headers,
+          rows,
+          dateRange: `${reportForm.value.startDate} s/d ${reportForm.value.endDate}`, 
+          additionalInfo: reportForm.value.additionalInfo,
+          fileName: `Laporan_Produksi_${Date.now()}.pdf`,
         });
 
-        if (reportForm.value.additionalInfo) {
-          const finalY = doc.lastAutoTable.finalY || 25;
-          doc.setFontSize(12);
-          doc.text("Info Tambahan:", 10, finalY + 10);
-          doc.text(reportForm.value.additionalInfo, 10, finalY + 15);
-        }
-
-        doc.save(`Laporan_Produksi_${Date.now()}.pdf`);
       } catch (error) {
-        console.error("Failed to generate report:", error);
+        console.error("Failed to export plan report:", error);
       } finally {
         loading.value = false;
       }
@@ -840,19 +893,39 @@ export default {
       await userStore.fetchUsers();
       users.value = userStore.users || [];
     };
-
-    const fetchPlans = async () => {
-      await store.fetchPlans();
-      plans.value = store.plans || [];
-      products.value = store.products || [];
-      lastPage.value = store.pagination.lastPage || 1;
-
-      // attach has_order berdasarkan data order yang ada di plan
-      plans.value = plans.value.map((p) => ({
-        ...p,
-        has_order: !!p.order, // true jika ada order, false jika null
-      }));
+const fetchPlans = debounce(async () => {
+  try {
+    const params = {
+      page: page.value,
+      per_page: perPage.value,
+      search: search.value || null,
+      sort_field: "id",
+      sort_order: "desc",
     };
+
+    const response = await store.fetchPlans(params);
+
+    // Pastikan ambil data yang benar
+    if (response?.data) {
+      plans.value = response.data;
+      lastPage.value = response.last_page || 1;
+    } else if (store.plans?.data) {
+      plans.value = store.plans.data;
+      lastPage.value = store.plans.last_page || 1;
+    } else {
+      plans.value = [];
+    }
+  } catch (error) {
+    console.error("Error fetching plans:", error);
+    plans.value = [];
+  }
+}, 400);
+
+    const handleSearch = debounce(() => {
+      page.value = 1; 
+      fetchPlans();
+    }, 500);
+
 
     const fetchProducts = async () => {
       await productStore.fetchProducts();
@@ -912,7 +985,7 @@ export default {
       isEditMode.value = false;
       form.value = {
         plan_code: generateCode("PLAN"),
-        product_id: products.value[0]?.id || null,
+        product_id: "",
         quantity: 0,
         target_finish_date: "",
         notes: "",
@@ -1214,6 +1287,7 @@ export default {
       closeDetail,
       fetchProducts,
       fetchPlanReports,
+      exportPlanReport,
       showDetailModal,
       detailPlan,
       showProductModal,
@@ -1225,7 +1299,6 @@ export default {
       reportForm,
       openReportModal,
       closeReportModal,
-      generateReport,
       // order
       showCreateOrderModal,
       showOrderDetailModal,
@@ -1240,6 +1313,7 @@ export default {
       startEdit,
       confirmDelete,
       fetchUsers,
+      handleSearch,
       // alias for template close/submit of order modal
       close: () => {
         showCreateOrderModal.value = false;

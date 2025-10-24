@@ -10,14 +10,17 @@ import Forbidden from '../pages/misc/Forbidden.vue'
 import NotFound from '../pages/misc/NotFound.vue'
 
 // ===== PPIC =====
-import DashboardPPIC from '../pages/DashboardPPIC.vue'
+import DashboardPPIC from '../pages/ppic/DashboardPPIC.vue'
 import ProductionPlanPage from '../pages/ppic/ProductionPlanPage.vue'
+import ProductsPage from '@/pages/ppic/ProductsPage.vue'
 
 // ===== PRODUCTION =====
-import DashboardProduction from '../pages/DashboardProduction.vue'
+import DashboardProduction from '../pages/production/DashboardProduction.vue'
 import ProductionOrderList from '../pages/production/ProductionOrderList.vue'
 import ProductionReport from '../pages/production/ProductionReport.vue'
-import ProductsPage from '@/pages/ProductsPage.vue'
+import ProductionLog from '@/pages/ProductionLog.vue'
+
+
 
 const routes = [
   // ===== PUBLIC =====
@@ -33,6 +36,7 @@ const routes = [
   { path: '/production', name: 'DashboardProduction', component: DashboardProduction, meta: { requiresAuth: true } },
   { path: '/production/orders', component: ProductionOrderList, meta: { requiresAuth: true } },
   { path: '/production/reports', component: ProductionReport, meta: { requiresAuth: true } },
+  { path: '/production/logs', component: ProductionLog, meta: { requiresAuth: true } },
 
   // ===== MISC =====
   { path: '/forbidden', component: Forbidden },

@@ -25,36 +25,45 @@
       </li>
     </ul>
 
-<!-- Replace the router-link in Footer section with this button -->
-<div class="sidebar-footer border-top py-3 px-3 d-flex justify-content-between align-items-center">
-  <button 
-    @click="handleLogout" 
-      type="button"
+    <!-- User Info + Logout -->
+    <div class="sidebar-footer border-top py-3 px-3">
+      <div v-if="!isMinimized" class="d-flex align-items-center mb-3">
+        <i class="bi bi-person-circle fs-4 me-2 text-light"></i>
+        <div class="text-truncate">
+          <div class="fw-semibold text-white small">{{ user?.name || 'User' }}</div>
+          <div class=" text-white small">{{ user?.role || '-' }}</div>
+        </div>
+      </div>
 
-    class="btn btn-link text-light text-decoration-none d-flex align-items-center p-0"
-  >
-    <i class="bi bi-box-arrow-right me-2"></i>
-    <span v-if="!isMinimized">Logout</span>
-  </button>
-  
-  <button class="btn btn-sm btn-outline-light" @click="toggleSidebar">
-    <i :class="isMinimized ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
-  </button>
-</div>
+      <div class="d-flex justify-content-between align-items-center">
+        <button 
+          @click="handleLogout" 
+          type="button"
+          class="btn btn-link text-light text-decoration-none d-flex align-items-center p-0"
+        >
+          <i class="bi bi-box-arrow-right me-2"></i>
+          <span v-if="!isMinimized">Logout</span>
+        </button>
+
+        <button class="btn btn-sm btn-outline-light" @click="toggleSidebar">
+          <i :class="isMinimized ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
+        </button>
+      </div>
+    </div>
   </aside>
 </template>
 
 <script>
-import { useRoute, useRouter  } from "vue-router";
-import { useAuthStore } from '@/stores/authStore';
+import { useRoute, useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
+
 export default {
   name: "AppSidebar",
   setup() {
     const route = useRoute();
-    const router = useRouter(); 
-    
+    const router = useRouter();
+    const auth = useAuthStore();
 
-    // Ambil role dari URL (/ppic/... atau /production/...)
     const role = route.path.startsWith("/ppic")
       ? "ppic"
       : route.path.startsWith("/production")
@@ -68,42 +77,31 @@ export default {
           { path: "/ppic", label: "Dashboard", icon: "bi bi-speedometer2" },
           { path: "/ppic/products", label: "Daftar Produk", icon: "bi bi-box-seam" },
           { path: "/ppic/plans", label: "Rencana Produksi", icon: "bi bi-list-check" },
+          { path: "/production/logs", label: "Log Produksi", icon: "bi bi-journal-text" }
         ],
       },
       {
         role: "production",
         items: [
           { path: "/production", label: "Dashboard", icon: "bi bi-speedometer2" },
-          { path: "/production/order-list", label: "Order List", icon: "bi bi-box" },
-          { path: "/production/log", label: "Production Log", icon: "bi bi-clock-history" },
-          { path: "/production/report", label: "Report", icon: "bi bi-file-earmark-text" },
+          { path: "/production/orders", label: "Order Produksi", icon: "bi bi-box" },
+          { path: "/production/reports", label: "Laporan Produksi", icon: "bi bi-file-earmark-text" },
+          { path: "/production/logs", label: "Log Produksi", icon: "bi bi-journal-text" },
         ],
       },
     ];
 
-
-
-const handleLogout = () => {
-  const auth = useAuthStore();
-
-  // Reset store
-  auth.$reset(); // atau set token/user manual
-  auth.token = null;
-  auth.user = null;
-
-  // Remove localStorage
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-
-  // Redirect ke landing page
-  router.push('/');
-};
-
+    const handleLogout = () => {
+      auth.$reset();
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      router.push("/");
+    };
 
     const filteredMenu = menu.find((m) => m.role === role)?.items || [];
     const isActive = (path) => route.path === path;
 
-    return { filteredMenu, isActive, handleLogout };
+    return { filteredMenu, isActive, handleLogout, user: auth.user };
   },
   data() {
     return { isMinimized: false };

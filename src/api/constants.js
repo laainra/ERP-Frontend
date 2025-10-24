@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
   PRODUCTION_PLAN_REPORT: `${API_BASE_URL}/production_plans/report`,
   PRODUCTION_ORDERS: `${API_BASE_URL}/production_orders`,
   REPORTS: `${API_BASE_URL}/reports`,
+  LOGS: `${API_BASE_URL}/production_logs`,
 };
 
 export default API_BASE_URL;
