@@ -54,11 +54,11 @@
               <td>{{ order.order_code }}</td>
               <td>{{ order.product?.name || '-' }}</td>
               <td>{{ order.quantity_target || '-' }}</td>
-              <td>{{ order.plan.target_finish_date || '-' }}</td>
+              <td>{{ order.plan?.target_finish_date || '-' }}</td>
               <td>
                 <span :class="['badge', getStatusBadge(order.status)]">{{ order.status }}</span>
               </td>
-             <td>{{ order.logs[order.logs.length - 1]?.changed_by?.name || '-' }}</td>
+             <td>{{ order.logs?.[order.logs.length - 1]?.changed_by?.name || '-' }}</td>
               <td>{{ formatDate(order.updated_at) }}</td>
               <td class="d-flex gap-1">
                 <button class="btn btn-sm btn-info" @click="openDetail(order)">Detail</button>
@@ -99,13 +99,14 @@
             </div>
             <div class="modal-body">
               <ul class="list-group list-group-flush">
-                <li class="list-group-item"><strong>Order Code:</strong> {{ detailOrder.order_code }}</li>
-                <li class="list-group-item"><strong>Product:</strong> {{ detailOrder.product?.name }}</li>
-                <li class="list-group-item"><strong>Quantity Target:</strong> {{ detailOrder.quantity_target }}</li>
-                <li class="list-group-item"><strong>Quantity Done:</strong> {{ detailOrder.quantity_done }}</li>
-                <li class="list-group-item"><strong>Quantity Remaining:</strong> {{ detailOrder.quantity_remaining }}</li>
+                <li class="list-group-item"><strong>Kode Order:</strong> {{ detailOrder.order_code }}</li>
+                <li class="list-group-item"><strong>Produk:</strong> {{ detailOrder.product?.name }}</li>
+                <li class="list-group-item"><strong>Jumlah Target:</strong> {{ detailOrder.quantity_target }}</li>
+                <li class="list-group-item"><strong>Jumlah Selesai:</strong> {{ detailOrder.quantity_done }}</li>
+                <li class="list-group-item"><strong>Jumlah Tersisa:</strong> {{ detailOrder.quantity_remaining }}</li>
                 <li class="list-group-item"><strong>Status:</strong> {{ detailOrder.status }}</li>
-                <li class="list-group-item"><strong>Assigned To:</strong> {{ detailOrder.assigned_to?.name }}</li>
+                <li class="list-group-item"><strong>Diserahkan ke:</strong> {{ detailOrder.assigned_to?.name }}</li>
+                <li class="list-group-item"><strong>Catatan:</strong> {{ detailOrder.plan.notes }}</li>
               </ul>
             </div>
           </div>

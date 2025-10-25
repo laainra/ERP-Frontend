@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import axios from 'axios'
 
 // ===== AUTH =====
 import LoginPage from '../pages/auth/LoginPage.vue'
@@ -36,7 +37,9 @@ const routes = [
   { path: '/production', name: 'DashboardProduction', component: DashboardProduction, meta: { requiresAuth: true } },
   { path: '/production/orders', component: ProductionOrderList, meta: { requiresAuth: true } },
   { path: '/production/reports', component: ProductionReport, meta: { requiresAuth: true } },
-  { path: '/production/logs', component: ProductionLog, meta: { requiresAuth: true } },
+
+  // ===== LOGS =====
+  { path: '/logs', component: ProductionLog, meta: { requiresAuth: true } },
 
   // ===== MISC =====
   { path: '/forbidden', component: Forbidden },
@@ -47,6 +50,30 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
+  const api = axios.create({
+    baseURL: 'http://localhost:8000/api',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  // ====== INTERCEPTOR RESPONSE ======
+  api.interceptors.response.use(
+    response => response,
+    error => {
+      const auth = useAuthStore()
+
+    
+      if (error.response && error.response.status === 401) {
+    
+        auth.logout()
+        router.push('/forbidden')
+      }
+
+      return Promise.reject(error)
+    }
+  )
 
 // ===== MIDDLEWARE LOGIN CEK =====
 router.beforeEach((to, from, next) => {

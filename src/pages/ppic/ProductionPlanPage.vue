@@ -272,7 +272,7 @@
           <div class="modal-content shadow-lg border-0">
             <div class="modal-header">
               <h5 class="modal-title">
-                Detail Plan - {{ detailPlan.plan_code }}
+                Detail Rencana Produksi - {{ detailPlan.plan_code }}
               </h5>
               <button
                 type="button"
@@ -283,11 +283,11 @@
             <div class="modal-body">
               <table class="table table-borderless">
                 <tr>
-                  <th>Plan Code</th>
+                  <th>Kode Rencana</th>
                   <td>{{ detailPlan.plan_code }}</td>
                 </tr>
                 <tr>
-                  <th>Product</th>
+                  <th>Produk</th>
                   <td>
                     {{ detailPlan.product?.name }} ({{
                       detailPlan.product?.sku
@@ -295,22 +295,22 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Description</th>
+                  <th>Deskripsi</th>
                   <td>{{ detailPlan.product?.description }}</td>
                 </tr>
                 <tr>
-                  <th>Quantity</th>
+                  <th>Jumlah</th>
                   <td>
                     {{ detailPlan.quantity }} {{ detailPlan.product?.unit }}
                   </td>
                 </tr>
                 <tr>
-                  <th>Target Finish</th>
+                  <th>Target Penyelesaian</th>
                   <td>{{ detailPlan.target_finish_date }}</td>
                 </tr>
 
                 <tr>
-                  <th>Notes</th>
+                  <th>Catatan</th>
                   <td>{{ detailPlan.notes }}</td>
                 </tr>
                 <tr>
@@ -348,14 +348,6 @@
                   <th>Approved At</th>
                   <td>{{ detailPlan.approved_at || "-" }}</td>
                 </tr>
-                <tr>
-                  <th>Created At</th>
-                  <td>{{ detailPlan.created_at }}</td>
-                </tr>
-                <tr>
-                  <th>Updated At</th>
-                  <td>{{ detailPlan.updated_at }}</td>
-                </tr>
               </table>
             </div>
           </div>
@@ -392,11 +384,11 @@
                   <td>{{ productDetail.sku }}</td>
                 </tr>
                 <tr>
-                  <th>Name</th>
+                  <th>Nama Produk</th>
                   <td>{{ productDetail.name }}</td>
                 </tr>
                 <tr>
-                  <th>Description</th>
+                  <th>Deskripsi</th>
                   <td>{{ productDetail.description }}</td>
                 </tr>
                 <tr>
@@ -430,7 +422,7 @@
             <div class="modal-body">
               <form @submit.prevent="submit">
                 <div class="mb-3">
-                  <label class="form-label">Order Code</label>
+                  <label class="form-label">Kode Order</label>
                   <input
                     type="text"
                     class="form-control"
@@ -440,7 +432,7 @@
                 </div>
 
                 <div class="mb-3">
-                  <label class="form-label">Quantity Target</label>
+                  <label class="form-label">Jumlah Target</label>
                   <input
                     type="number"
                     class="form-control"
@@ -468,13 +460,13 @@
                   </select>
                 </div>
 
-                <div class="mb-3">
+                <!-- <div class="mb-3">
                   <label class="form-label">Notes</label>
                   <textarea
                     class="form-control"
                     v-model="localOrder.notes"
                   ></textarea>
-                </div>
+                </div> -->
 
                 <div class="d-flex justify-content-end gap-2 mt-3">
         
@@ -513,29 +505,29 @@
             <div class="modal-body" v-if="!editMode">
               <table class="table table-borderless">
                 <tr>
-                  <th>Order Code</th>
+                  <th>Kode Order</th>
                   <td>{{ order?.order_code ?? "-" }}</td>
                 </tr>
                 <tr>
-                  <th>Plan Code</th>
+                  <th>Kode Order</th>
                   <td>{{ currentPlan.plan_code }}</td>
                 </tr>
                 <tr>
-                  <th>Product</th>
+                  <th>Produk</th>
                   <td>{{ currentPlan.product?.name ?? "-" }}</td>
                 </tr>
                 <tr>
-                  <th>Quantity Target</th>
+                  <th>Jumlah Target</th>
                   <td>{{ order?.quantity_target ?? currentPlan.quantity }}</td>
                 </tr>
                 <tr>
-                  <th>Quantity Done / Actual</th>
+                  <th>Jumlah Produksi</th>
                   <td>
                     {{ order?.quantity_done ?? order?.quantity_actual ?? "-" }}
                   </td>
                 </tr>
                 <tr>
-                  <th>Quantity Remaining / Reject</th>
+                  <th>Jumlah Reject</th>
                   <td>
                     {{
                       order?.quantity_remaining ?? order?.quantity_reject ?? "-"
@@ -543,7 +535,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th>Assigned To</th>
+                  <th>Diserahkan Ke</th>
                   <td>{{ order?.assigned_to?.name ?? "-" }}</td>
                 </tr>
                 <tr>
@@ -551,21 +543,14 @@
                   <td>{{ order?.status ?? "-" }}</td>
                 </tr>
                 <tr>
-                  <th>Notes</th>
+                  <th>Catatan</th>
                   <td>{{ currentPlan.notes ?? "-" }}</td>
                 </tr>
                 <tr>
-                  <th>Target Finish Date</th>
+                  <th>Tanggal Target Penyelesaian</th>
                   <td>{{ currentPlan.target_finish_date ?? "-" }}</td>
                 </tr>
-                <tr>
-                  <th>Created At</th>
-                  <td>{{ currentPlan.created_at ?? "-" }}</td>
-                </tr>
-                <tr>
-                  <th>Updated At</th>
-                  <td>{{ currentPlan.updated_at ?? "-" }}</td>
-                </tr>
+
               </table>
             </div>
 
@@ -625,7 +610,7 @@
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Quantity</label>
+                  <label class="form-label">Quantity/Jumlah</label>
                   <input
                     type="number"
                     class="form-control"
@@ -634,7 +619,7 @@
                   />
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Target Finish Date</label>
+                  <label class="form-label">Target Tanggal Penyelesaian</label>
                   <input
                     type="date"
                     class="form-control"
@@ -643,7 +628,7 @@
                   />
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Notes</label>
+                  <label class="form-label">Catatan</label>
                   <textarea
                     class="form-control"
                     v-model="form.notes"
@@ -840,12 +825,12 @@ export default {
       } finally {
         loadingPage.value = false;
       }
-    }, 300);
+    }, 30);
 
     const handleSearch = debounce(() => {
       page.value = 1; 
       fetchPlans();
-    }, 500);
+    }, 50);
 
 
     const fetchProducts = async () => {

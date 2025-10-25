@@ -42,7 +42,7 @@
           class="btn btn-link text-light text-decoration-none d-flex align-items-center p-0"
         >
          
-          <span class="me-2" v-if="!isMinimized">Logout</span>
+          <span class="me-2 small" v-if="!isMinimized">Logout</span>
            <i class="bi bi-box-arrow-right "></i>
         </button>
 
@@ -70,7 +70,7 @@ export default {
     const role = computed(() => {
       if (route.path.startsWith("/ppic")) return "ppic";
       if (route.path.startsWith("/production")) return "production";
-      return "unknown";
+      return "ppic";
     });
 
     const menu = [
@@ -80,7 +80,7 @@ export default {
           { path: "/ppic", label: "Dashboard", icon: "bi bi-speedometer2" },
           { path: "/ppic/products", label: "Daftar Produk", icon: "bi bi-box-seam" },
           { path: "/ppic/plans", label: "Rencana Produksi", icon: "bi bi-list-check" },
-          { path: "/production/logs", label: "Log Produksi", icon: "bi bi-journal-text" }
+          { path: "/logs", label: "Log Produksi", icon: "bi bi-journal-text" }
         ],
       },
       {
@@ -89,7 +89,7 @@ export default {
           { path: "/production", label: "Dashboard", icon: "bi bi-speedometer2" },
           { path: "/production/orders", label: "Order Produksi", icon: "bi bi-box" },
           { path: "/production/reports", label: "Laporan Produksi", icon: "bi bi-file-earmark-text" },
-          { path: "/production/logs", label: "Log Produksi", icon: "bi bi-journal-text" },
+          { path: "/logs", label: "Log Produksi", icon: "bi bi-journal-text" },
         ],
       },
     ];
