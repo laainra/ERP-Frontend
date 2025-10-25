@@ -31,10 +31,18 @@
           placeholder="Password"
           required
         />
-        <button class="btn btn-primary w-100 fw-semibold" type="submit">
+        <button class="btn btn-primary w-100 fw-semibold mb-3" type="submit">
           Login
         </button>
       </form>
+
+      <!-- Tombol ganti mode login -->
+      <button
+        class="btn btn-outline-secondary w-100"
+        @click="switchLoginType"
+      >
+        {{ pageType === 'ppic' ? 'Login sebagai Produksi' : 'Login sebagai PPIC' }}
+      </button>
     </div>
   </div>
 </template>
@@ -55,7 +63,7 @@ export default {
     const email = ref("");
     const password = ref("");
     const loading = ref(false);
-    const pageType = ref("ppic"); 
+    const pageType = ref("ppic");
 
     onMounted(() => {
       const type = route.query.type;
@@ -66,7 +74,6 @@ export default {
       loading.value = true;
       try {
         await auth.login(email.value, password.value);
-
         Swal.fire("Success", "Login berhasil", "success");
 
         if (pageType.value === "production") {
@@ -81,7 +88,18 @@ export default {
       }
     };
 
-    return { email, password, handleLogin, loading, pageType };
+    const switchLoginType = () => {
+      // Ganti mode login dan update URL query
+      if (pageType.value === "ppic") {
+        router.replace({ query: { type: "production" } });
+        pageType.value = "production";
+      } else {
+        router.replace({ query: { type: "ppic" } });
+        pageType.value = "ppic";
+      }
+    };
+
+    return { email, password, handleLogin, loading, pageType, switchLoginType };
   },
 };
 </script>
