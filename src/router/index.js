@@ -81,7 +81,7 @@ router.beforeEach((to, from, next) => {
 
   // Cek apakah butuh login
   if (to.meta.requiresAuth && !auth.token) {
-    return next('/login')
+    return next('/')
   }
 
   // Jika sudah login dan buka /login atau /

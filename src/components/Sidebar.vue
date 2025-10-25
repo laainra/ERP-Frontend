@@ -17,7 +17,7 @@
         <router-link
           :to="item.path"
           class="nav-link d-flex align-items-center px-3 py-2"
-          :class="isActive(item.path) ? 'active-link' : ''"
+          :class="{ 'active-link': isActive(item.path) }"
         >
           <i :class="[item.icon, 'me-2 fs-5']"></i>
           <span v-if="!isMinimized">{{ item.label }}</span>
@@ -31,19 +31,18 @@
         <i class="bi bi-person-circle fs-4 me-2 text-light"></i>
         <div class="text-truncate">
           <div class="fw-semibold text-white small">{{ user?.name || 'User' }}</div>
-          <div class=" text-white small">{{ user?.role || '-' }}</div>
+          <div class="text-white small">{{ user?.role || '-' }}</div>
         </div>
       </div>
 
       <div class="d-flex justify-content-between align-items-center">
-        <button 
-          @click="handleLogout" 
+        <button
+          @click="handleLogout"
           type="button"
           class="btn btn-link text-light text-decoration-none d-flex align-items-center p-0"
         >
-         
           <span class="me-2 small" v-if="!isMinimized">Logout</span>
-           <i class="bi bi-box-arrow-right "></i>
+          <i class="bi bi-box-arrow-right"></i>
         </button>
 
         <button class="btn btn-sm btn-outline-light" @click="toggleSidebar">
@@ -57,9 +56,17 @@
 <script>
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
-import { computed} from "vue";
+import { computed } from "vue";
+
 export default {
   name: "AppSidebar",
+
+  data() {
+    return {
+      isMinimized: false,
+    };
+  },
+
   setup() {
     const route = useRoute();
     const router = useRouter();
@@ -68,8 +75,8 @@ export default {
     const user = computed(() => auth.user);
 
     const role = computed(() => {
-      if (route.path.startsWith("/ppic")) return "ppic";
       if (route.path.startsWith("/production")) return "production";
+      if (route.path.startsWith("/ppic")) return "ppic";
       return "ppic";
     });
 
@@ -80,7 +87,7 @@ export default {
           { path: "/ppic", label: "Dashboard", icon: "bi bi-speedometer2" },
           { path: "/ppic/products", label: "Daftar Produk", icon: "bi bi-box-seam" },
           { path: "/ppic/plans", label: "Rencana Produksi", icon: "bi bi-list-check" },
-          { path: "/logs", label: "Log Produksi", icon: "bi bi-journal-text" }
+          { path: "/logs", label: "Log Produksi", icon: "bi bi-journal-text" },
         ],
       },
       {
@@ -94,25 +101,30 @@ export default {
       },
     ];
 
-
     const filteredMenu = computed(() => menu.find((m) => m.role === role.value)?.items || []);
 
 
-    const handleLogout = () => {
-      auth.$reset();
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      router.replace({ path: '/' });
+    const handleLogout = async () => {
+      try {
+        auth.$reset();
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // Redirect ke halaman landing
+        await router.push({ path: "/" });
+
+        // Optional (penting kalau guard masih nyangkut di state)
+        window.location.reload();
+      } catch (err) {
+        console.error("Logout failed:", err);
+      }
     };
 
-    // const filteredMenu = menu.find((m) => m.role === role)?.items || [];
     const isActive = (path) => route.path === path;
 
-    return { filteredMenu, isActive, handleLogout, user};
+    return { filteredMenu, isActive, handleLogout, user, router };
   },
-  data() {
-    return { isMinimized: false };
-  },
+
   methods: {
     toggleSidebar() {
       this.isMinimized = !this.isMinimized;
@@ -131,51 +143,42 @@ export default {
   position: relative;
   z-index: 10;
 }
-
 .sidebar-expanded {
   min-width: 230px;
   max-width: 230px;
 }
-
 .sidebar-minimized {
   width: 90px;
 }
-
 .sidebar-header {
   display: flex;
   flex-direction: column;
   align-items: center;
   background: #18273f;
 }
-
 .sidebar-logo {
   width: 50px;
   height: 50px;
   border-radius: 8px;
 }
-
 .nav-link {
   color: #dee2e6;
   border-radius: 8px;
   margin: 4px 8px;
   transition: 0.2s;
 }
-
 .nav-link:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
 }
-
 .active-link {
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
   font-weight: 600;
 }
-
 .sidebar-footer {
   background: #18273f;
 }
-
 .btn-outline-light {
   border: none;
   color: #dee2e6;
